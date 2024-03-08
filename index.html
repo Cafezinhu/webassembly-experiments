@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function basics(){
+            const global = new WebAssembly.Global({value: "i32", mutable: true}, 0);
+            const memory = new WebAssembly.Memory({initial: 1});
+
+            function consoleLogString(offset, length){
+                const bytes = new Uint8Array(memory.buffer, offset, length);
+                const string = new TextDecoder("utf8").decode(bytes);
+                console.log(string);
+            }
+
+            WebAssembly.instantiateStreaming(fetch("index.wasm"), {console: {log: consoleLogString}, js: {global, mem: memory}}).then((obj) => {
+                
+                console.log(obj.instance.exports.add(10, 10)); // "3"
+                console.log(obj.instance.exports.respostaMais1()); // "43"
+                obj.instance.exports.incGlobal();
+                console.log(obj.instance.exports.getGlobal())
+                obj.instance.exports.hello_world();
+            });
+        }
+        function table(){
+            WebAssembly.instantiateStreaming(fetch("table.wasm")).then((obj) => {
+                console.log(obj.instance.exports.callByIndex(0)); // returns 42
+                console.log(obj.instance.exports.callByIndex(1)); // returns 13
+                console.log(obj.instance.exports.callByIndex(2)); // returns an error, because there is no index position 2 in the table
+            });
+        }
+        function shared(){
+            const importObj = {
+                js: {
+                    memory: new WebAssembly.Memory({ initial: 1 }),
+                    table: new WebAssembly.Table({ initial: 1, element: "anyfunc" }),
+                },
+            };
+
+            Promise.all([
+                WebAssembly.instantiateStreaming(fetch("shared0.wasm"), importObj),
+                WebAssembly.instantiateStreaming(fetch("shared1.wasm"), importObj),
+            ]).then((results) => {
+                console.log(results[1].instance.exports.doIt()); // prints 42
+            });
+
+        }
+        function teste(){
+            WebAssembly.instantiateStreaming(fetch("teste.wasm")).then((obj) => {
+                console.log(obj.instance.exports.fib());
+            });
+        }
+    </script>
+</body>
+</html>
