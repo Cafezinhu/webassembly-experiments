@@ -7,11 +7,16 @@
     (import "extism:host/env" "output_set" (func $output_set (param i64) (param i64)))
     (import "extism:host/user" "godot_print" (func $godot_print (param i64)))
     (import "extism:host/user" "is_action_pressed" (func $is_action_pressed (param i64) (result i64)))
+    (import "extism:host/user" "is_action_just_pressed" (func $is_action_just_pressed (param i64) (result i64)))
     (memory $memory (export "memory") 1)   
 
     (data (i32.const 0) "Hello world!")
     (data (i32.const 12) "Enter apertado!")
     (data (i32.const 27) "ui_accept")
+    (data (i32.const 36) "ui_up")
+    (data (i32.const 41) "ui_down")
+    (data (i32.const 48) "ui_left")
+    (data (i32.const 55) "ui_right")
 
     (func $alloc_string (param $offset i32) (param $length i32) (result i64)
         (local $alloc_offset i64)
@@ -69,18 +74,65 @@
         i32.const 0)
 
     (func (export "process") (result i32)
-        i32.const 27
-        i32.const 9
+        i32.const 36
+        i32.const 5
         call $alloc_string
-        call $is_action_pressed
+        call $is_action_just_pressed
         call $load_u8
         (if
             (then
-                i32.const 12
-                i32.const 15
+                i32.const 36
+                i32.const 5
                 call $alloc_string
                 call $godot_print
             )
         )
+
+        ;; i32.const 41
+        ;; i32.const 7
+        ;; call $alloc_string
+        ;; call $is_action_just_pressed
+        ;; call $load_u8
+        (call $load_u8 (call $is_action_just_pressed (call $alloc_string (i32.const 41) (i32.const 7))))
+        (if
+            (then
+                i32.const 41
+                i32.const 7
+                call $alloc_string
+                call $godot_print
+            )
+        )
+
+        i32.const 48
+        i32.const 7
+        call $alloc_string
+        call $is_action_just_pressed
+        call $load_u8
+        (if
+            (then
+                i32.const 48
+                i32.const 7
+                call $alloc_string
+                call $godot_print
+            )
+            (else
+            
+            )
+        )
+
+        i32.const 55
+        i32.const 8
+        call $alloc_string
+        call $is_action_just_pressed
+        call $load_u8
+        (if
+            (then
+                i32.const 55
+                i32.const 8
+                call $alloc_string
+                call $godot_print
+            )
+        )
+
         i32.const 0)
 )

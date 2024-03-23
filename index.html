@@ -57,9 +57,35 @@
 
         }
         function teste(){
-            WebAssembly.instantiateStreaming(fetch("teste.wasm")).then((obj) => {
-                console.log(obj.instance.exports.fib());
-            });
+            const importObject = {
+                console: {
+                    log(arg1) {
+                        console.log(arg1);
+                    },
+
+                },
+            };
+
+            WebAssembly.instantiateStreaming(fetch("func.wasm"), importObject).then(
+                (obj) => {
+                    obj.instance.exports.logIt();
+                },
+            );
+
+        }
+
+        function vector(){
+            WebAssembly.instantiateStreaming(fetch("vector.wasm")).then(
+                (obj) => {
+                    console.log(`add: ${obj.instance.exports.add(2,2,3,3)}`);
+                    console.log(`subtract: ${obj.instance.exports.subtract(2,2,3,3)}`);
+                    console.log(`multiply: ${obj.instance.exports.multiply(2,2,3)}`);
+                    console.log(`divide: ${obj.instance.exports.divide(2,2,3)}`);
+                    console.log(`divide by zero: ${obj.instance.exports.divide(2,2,0)}`);
+                    console.log(`magnitude: ${obj.instance.exports.magnitude(2,2)}`);
+                    console.log(`normalize: ${obj.instance.exports.normalize(2,2)}`);
+                },
+            );
         }
     </script>
 </body>
